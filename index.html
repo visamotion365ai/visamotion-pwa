@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7fbff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="VisaMOTion">
+  <meta name="description" content="VisaMOTion helps you discover destinations, prepare documents, and track your next move.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-512.png">
+  <title>VisaMOTion</title>
+  <style>
+    :root {
+      --ink: #102a43;
+      --ink-soft: #52677a;
+      --muted: #7d93a5;
+      --line: rgba(33, 93, 126, .13);
+      --card: rgba(255, 255, 255, .78);
+      --card-strong: rgba(255, 255, 255, .96);
+      --blue: #1769ff;
+      --teal: #12b8b1;
+      --mint: #dff9f4;
+      --sky: #e4efff;
+      --orange: #ff9a62;
+      --shadow: 0 18px 50px rgba(38, 91, 130, .12);
+      --shadow-soft: 0 10px 30px rgba(55, 105, 137, .08);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #f7fbff; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(160, 235, 231, .42), transparent 32rem),
+        radial-gradient(circle at 100% 18%, rgba(166, 198, 255, .34), transparent 32rem),
+        linear-gradient(145deg, #fbfdff 0%, #f1f8ff 48%, #f7fbff 100%);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { border: 0; cursor: pointer; color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid rgba(23, 105, 255, .25); outline-offset: 3px; }
+    a { color: inherit; }
+    .ambient { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; }
+    .ambient::before, .ambient::after { content: ""; position: absolute; border-radius: 999px; filter: blur(2px); opacity: .48; }
+    .ambient::before { width: 22rem; height: 22rem; left: -9rem; top: 30%; background: rgba(75, 207, 191, .2); }
+    .ambient::after { width: 26rem; height: 26rem; right: -12rem; bottom: 8%; background: rgba(116, 158, 255, .18); }
+    .app-shell { width: min(1240px, 100%); margin: 0 auto; padding: 18px 18px calc(28px + var(--safe-bottom)); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 4px 2px 18px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; }
+    .brand-mark { width: 42px; height: 42px; border-radius: 15px; display: grid; place-items: center; color: white; font-weight: 800; font-size: 20px; letter-spacing: -.08em; background: linear-gradient(145deg, #0dbcb3, #266bff 74%); box-shadow: inset 0 1px rgba(255,255,255,.52), 0 10px 22px rgba(31, 111, 219, .24); }
+    .brand-name { font-size: 18px; font-weight: 800; letter-spacing: -.04em; }
+    .brand-sub { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+    .icon-btn { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; background: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.9); box-shadow: var(--shadow-soft); color: #42667e; }
+    .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; color: #0e7e84; font-size: 14px; font-weight: 800; background: linear-gradient(145deg, #dcfff6, #bde9ff); border: 1px solid white; }
+    .layout { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 22px; align-items: start; }
+    .sidebar { position: sticky; top: 18px; padding: 14px 10px; border: 1px solid rgba(255,255,255,.95); background: rgba(255,255,255,.58); box-shadow: var(--shadow-soft); border-radius: 24px; backdrop-filter: blur(24px); }
+    .nav-label { padding: 8px 13px 10px; color: #91a4b2; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; font-weight: 800; }
+    .nav-btn { width: 100%; display: flex; align-items: center; gap: 11px; padding: 12px 13px; margin-bottom: 3px; color: #678096; text-align: left; border-radius: 15px; background: transparent; font-weight: 700; font-size: 13px; transition: .2s ease; }
+    .nav-btn svg { flex: 0 0 auto; opacity: .82; }
+    .nav-btn:hover { background: rgba(255,255,255,.76); color: var(--ink); }
+    .nav-btn.active { color: #0b6b78; background: linear-gradient(100deg, rgba(214, 252, 244, .95), rgba(221, 236, 255, .85)); box-shadow: inset 0 1px rgba(255,255,255,.9), 0 8px 16px rgba(29, 116, 153, .09); }
+    .side-note { margin: 20px 3px 3px; padding: 15px; border-radius: 19px; color: #4b6c84; background: linear-gradient(145deg, rgba(225, 250, 244, .95), rgba(235, 242, 255, .95)); border: 1px solid rgba(255,255,255,.9); }
+    .side-note strong { display: block; color: #15516b; font-size: 12px; }
+    .side-note span { display: block; margin-top: 4px; line-height: 1.5; font-size: 11px; }
+    .content { min-width: 0; }
+    .content:focus { outline: none; }
+    .screen { animation: screenIn .28s ease both; }
+    @keyframes screenIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 26px 0 14px; }
+    .eyebrow { color: var(--teal); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { margin-top: 7px; font-size: clamp(30px, 4vw, 44px); line-height: .99; letter-spacing: -.065em; }
+    h2 { margin-top: 6px; font-size: 24px; letter-spacing: -.05em; }
+    h3 { font-size: 16px; letter-spacing: -.025em; }
+    .lede { max-width: 600px; margin-top: 11px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+    .muted { color: var(--muted); }
+    .glass { border: 1px solid rgba(255,255,255,.92); background: var(--card); box-shadow: var(--shadow-soft); backdrop-filter: blur(26px); }
+    .hero { position: relative; min-height: 320px; overflow: hidden; padding: clamp(24px, 5vw, 44px); border-radius: var(--radius-xl); background: linear-gradient(120deg, rgba(14, 174, 173, .94), rgba(35, 101, 239, .92) 72%), radial-gradient(circle at 90% 0%, #a7f5e7, transparent 28rem); box-shadow: 0 22px 52px rgba(37, 105, 182, .2); color: white; }
+    .hero::before { content: ""; position: absolute; width: 340px; height: 340px; right: -90px; top: -100px; border-radius: 48% 52% 64% 36%; border: 1px solid rgba(255,255,255,.3); box-shadow: 0 0 0 18px rgba(255,255,255,.05), 0 0 0 42px rgba(255,255,255,.04), 0 0 0 74px rgba(255,255,255,.03); transform: rotate(18deg); }
+    .hero::after { content: ""; position: absolute; inset: auto -8% -68% 42%; height: 300px; transform: rotate(-10deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent); filter: blur(8px); }
+    .hero > * { position: relative; z-index: 1; }
+    .hero h1 { max-width: 500px; font-size: clamp(38px, 6vw, 66px); }
+    .hero .lede { max-width: 450px; color: rgba(255,255,255,.82); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .primary-btn, .secondary-btn, .quiet-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 17px; border-radius: 14px; font-weight: 800; font-size: 13px; transition: .2s ease; }
+    .primary-btn { color: #104460; background: white; box-shadow: 0 10px 20px rgba(11, 73, 125, .17); }
+    .primary-btn:hover, .secondary-btn:hover, .quiet-btn:hover { transform: translateY(-2px); }
+    .secondary-btn { color: white; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.42); }
+    .quiet-btn { color: #397087; background: rgba(255,255,255,.78); border: 1px solid rgba(255,255,255,.98); box-shadow: var(--shadow-soft); }
+    .text-btn { padding: 6px 0; color: #13708e; background: transparent; font-size: 12px; font-weight: 800; }
+    .stat-row { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 30px; }
+    .stat { min-width: 88px; }
+    .stat strong { display: block; font-size: 21px; letter-spacing: -.04em; }
+    .stat span { display: block; margin-top: 3px; color: rgba(255,255,255,.7); font-size: 11px; }
+    .card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .mini-card { padding: 18px; border-radius: var(--radius-lg); }
+    .mini-card .mini-icon { width: 38px; height: 38px; display: grid; place-items: center; margin-bottom: 15px; border-radius: 13px; color: #14768a; background: linear-gradient(145deg, #d9fff4, #dceaff); }
+    .mini-card p { margin-top: 7px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #76a0b5; }
+    .search { width: 100%; height: 48px; padding: 0 17px 0 45px; color: var(--ink); border: 1px solid rgba(255,255,255,.95); border-radius: 16px; background: rgba(255,255,255,.75); box-shadow: var(--shadow-soft); }
+    .search::placeholder { color: #9badb9; }
+    .pill-row { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 5px; scrollbar-width: none; }
+    .pill-row::-webkit-scrollbar { display: none; }
+    .pill { flex: 0 0 auto; min-height: 34px; padding: 0 13px; color: #6c8496; border: 1px solid rgba(255,255,255,.92); border-radius: 999px; background: rgba(255,255,255,.7); font-size: 12px; font-weight: 800; }
+    .pill.active { color: #0d6e7a; background: linear-gradient(100deg, #ddfff6, #e1ecff); }
+    .destination-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .destination-card { position: relative; min-height: 235px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 19px; border-radius: 24px; color: white; background: var(--destination-bg, linear-gradient(145deg, #0dabb4, #235ce5)); box-shadow: 0 16px 34px rgba(40, 100, 151, .16); isolation: isolate; }
+    .destination-card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(11,32,64,.02) 20%, rgba(8,37,68,.74) 100%); }
+    .destination-card::after { content: ""; position: absolute; width: 210px; height: 210px; top: -75px; right: -56px; border: 1px solid rgba(255,255,255,.28); border-radius: 45% 55% 50% 50%; transform: rotate(22deg); }
+    .destination-top { position: absolute; top: 16px; left: 17px; right: 17px; display: flex; align-items: flex-start; justify-content: space-between; }
+    .country-code { padding: 6px 8px; border-radius: 9px; color: #fff; background: rgba(255,255,255,.17); border: 1px solid rgba(255,255,255,.3); font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+    .save-btn { width: 33px; height: 33px; display: grid; place-items: center; border-radius: 11px; color: white; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); }
+    .save-btn.saved { color: #ffd56a; }
+    .destination-card h3 { font-size: 23px; letter-spacing: -.05em; }
+    .destination-card p { margin-top: 5px; color: rgba(255,255,255,.78); font-size: 12px; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .card-meta span { padding: 6px 8px; border-radius: 9px; color: rgba(255,255,255,.9); background: rgba(255,255,255,.14); font-size: 10px; font-weight: 800; }
+    .mobile-nav { display: none; }
+    .toast { position: fixed; left: 50%; bottom: calc(24px + var(--safe-bottom)); z-index: 30; width: min(420px, calc(100% - 32px)); padding: 14px 16px; transform: translate(-50%, 18px); opacity: 0; pointer-events: none; color: #164c62; border: 1px solid rgba(255,255,255,.9); border-radius: 16px; background: rgba(255,255,255,.92); box-shadow: var(--shadow); backdrop-filter: blur(20px); font-size: 13px; font-weight: 800; transition: .25s ease; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .loading { display: grid; place-items: center; min-height: 230px; color: var(--muted); }
+    .spinner { width: 27px; height: 27px; border: 3px solid #d9eaf3; border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .destination-hit { position: absolute; inset: 0; z-index: 0; background: transparent; }
+    .destination-card h3, .destination-card p, .destination-card .card-meta, .destination-card .destination-top { z-index: 1; }
+    .destination-card .save-btn { position: relative; z-index: 3; }
+    .journey-card { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 16px; align-items: center; padding: 22px; border-radius: 26px; }
+    .journey-card h3 { margin-top: 8px; font-size: 21px; }
+    .journey-card p { margin-top: 7px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+    .progress-dial { width: 126px; height: 126px; display: grid; place-items: center; margin-left: auto; border-radius: 50%; background: conic-gradient(var(--teal) var(--progress), #e8f0f5 0); position: relative; }
+    .progress-dial::after { content: ""; position: absolute; inset: 10px; border-radius: 50%; background: rgba(255,255,255,.93); }
+    .progress-dial strong, .progress-dial span { position: relative; z-index: 1; }
+    .progress-dial strong { font-size: 28px; letter-spacing: -.08em; }
+    .progress-dial span { margin-top: 33px; margin-left: -32px; color: var(--muted); font-size: 10px; }
+    .purpose-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; }
+    .purpose-card { min-height: 119px; padding: 14px; text-align: left; border: 1px solid rgba(255,255,255,.94); border-radius: 20px; background: rgba(255,255,255,.66); box-shadow: var(--shadow-soft); transition: .2s ease; }
+    .purpose-card:hover, .purpose-card.selected { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .purpose-card.selected { outline: 2px solid rgba(18,184,177,.36); }
+    .purpose-icon { width: 34px; height: 34px; display: grid; place-items: center; margin-bottom: 14px; border-radius: 12px; font-weight: 900; }
+    .purpose-icon.mint { color: #0b817d; background: #d9f8ef; }
+    .purpose-icon.sky { color: #2a67c8; background: #e0ebff; }
+    .purpose-icon.peach { color: #bd6d45; background: #ffe4d8; }
+    .purpose-icon.lilac { color: #7352aa; background: #eee3ff; }
+    .purpose-icon.yellow { color: #977a22; background: #fff3c8; }
+    .purpose-icon.blue { color: #3267d8; background: #dce9ff; }
+    .purpose-card strong { display: block; font-size: 13px; }
+    .purpose-card span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.3; }
+    .detail-hero { position: relative; min-height: 282px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 22px; border-radius: 28px; color: white; background: var(--detail-gradient); box-shadow: 0 20px 46px rgba(49, 106, 158, .18); }
+    .detail-hero::before { content: ""; position: absolute; width: 360px; height: 360px; top: -145px; right: -80px; border: 1px solid rgba(255,255,255,.3); border-radius: 46% 54% 62% 38%; box-shadow: 0 0 0 22px rgba(255,255,255,.06), 0 0 0 56px rgba(255,255,255,.04); transform: rotate(32deg); }
+    .detail-hero > * { position: relative; z-index: 1; }
+    .detail-nav { position: absolute; top: 18px; left: 18px; right: 18px; display: flex; justify-content: space-between; }
+    .detail-nav .icon-btn { color: white; background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.28); }
+    .detail-code { display: inline-flex; width: fit-content; padding: 7px 9px; border-radius: 10px; color: white; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); font-size: 10px; font-weight: 900; letter-spacing: .14em; }
+    .detail-hero h1 { margin-top: 10px; font-size: 42px; }
+    .detail-hero p { margin-top: 6px; color: rgba(255,255,255,.82); font-size: 13px; }
+    .detail-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 16px; }
+    .detail-facts div { padding: 12px; border-radius: 14px; color: rgba(255,255,255,.86); background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); }
+    .detail-facts strong { display: block; color: white; font-size: 13px; }
+    .detail-facts span { display: block; margin-top: 4px; font-size: 10px; }
+    .split-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; }
+    .panel { padding: 21px; border-radius: 24px; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+    .panel-head p { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .highlight-list { display: grid; gap: 9px; }
+    .highlight-list li { display: flex; align-items: center; gap: 9px; color: var(--ink-soft); font-size: 12px; list-style: none; }
+    .check { width: 20px; height: 20px; display: grid; place-items: center; flex: 0 0 auto; color: #0d8a86; border-radius: 7px; background: #def9f1; }
+    .route-list { display: grid; gap: 9px; }
+    .route-row { display: flex; align-items: center; gap: 10px; padding: 11px; border-radius: 14px; background: rgba(244,249,252,.9); }
+    .route-row strong { display: block; font-size: 12px; }
+    .route-row span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .stepper { display: grid; gap: 0; }
+    .step { position: relative; display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 12px; padding-bottom: 22px; }
+    .step:last-child { padding-bottom: 0; }
+    .step:not(:last-child)::after { content: ""; position: absolute; top: 25px; left: 13px; bottom: 4px; width: 1px; background: #d9e8ef; }
+    .step-dot { width: 27px; height: 27px; display: grid; place-items: center; z-index: 1; border-radius: 50%; color: #8ca4b3; background: #e7f0f4; font-size: 11px; font-weight: 900; }
+    .step.done .step-dot { color: white; background: var(--teal); }
+    .step.current .step-dot { color: white; background: var(--blue); box-shadow: 0 0 0 5px rgba(23,105,255,.12); }
+    .step strong { display: block; padding-top: 4px; font-size: 13px; }
+    .step p { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .checklist { display: grid; gap: 9px; }
+    .doc-row { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid rgba(226,237,244,.92); border-radius: 17px; background: rgba(255,255,255,.74); }
+    .doc-row.done { background: rgba(231, 250, 245, .82); border-color: rgba(94, 202, 177, .24); }
+    .doc-check { width: 24px; height: 24px; display: grid; place-items: center; flex: 0 0 auto; color: #95aab5; border: 1.5px solid #c9dbe4; border-radius: 8px; background: white; }
+    .doc-row.done .doc-check { color: white; border-color: var(--teal); background: var(--teal); }
+    .doc-copy { min-width: 0; flex: 1; }
+    .doc-copy strong { display: block; font-size: 13px; }
+    .doc-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .doc-action { padding: 7px 10px; color: #1b77a1; border-radius: 10px; background: #edf7ff; font-size: 10px; font-weight: 900; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .field { display: grid; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #638094; font-size: 11px; font-weight: 800; }
+    .field input, .field textarea, .field select { width: 100%; min-height: 45px; padding: 11px 13px; color: var(--ink); border: 1px solid #dfebf1; border-radius: 13px; background: rgba(255,255,255,.8); }
+    .field textarea { min-height: 105px; resize: vertical; }
+    .form-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 17px; }
+    .note { padding: 12px 14px; color: #557488; border: 1px solid #dff0f2; border-radius: 14px; background: #f0fbfa; font-size: 11px; line-height: 1.5; }
+    .error-card { padding: 19px; border-radius: 20px; color: #914f45; background: #fff2ed; border: 1px solid #ffd9ca; }
+    .error-card p { margin-top: 5px; font-size: 12px; line-height: 1.5; }
+    .empty { display: grid; place-items: center; min-height: 260px; padding: 30px; text-align: center; border-radius: 24px; }
+    .empty-orb { width: 52px; height: 52px; display: grid; place-items: center; margin-bottom: 12px; color: #1b8e92; border-radius: 17px; background: linear-gradient(145deg, #e0fff6, #e5eeff); }
+    .empty p { max-width: 320px; margin: 7px 0 17px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .table { overflow: hidden; border-radius: 18px; }
+    .table-row { display: grid; grid-template-columns: 1.2fr 1fr .7fr auto; align-items: center; gap: 12px; padding: 14px 15px; border-bottom: 1px solid #edf2f5; background: rgba(255,255,255,.72); font-size: 12px; }
+    .table-row:last-child { border-bottom: 0; }
+    .table-row strong { font-size: 12px; }
+    .table-row span { color: var(--muted); font-size: 11px; }
+    .status { width: fit-content; padding: 6px 8px; border-radius: 8px; color: #13716c; background: #ddf8ef; font-size: 10px; font-weight: 900; }
+    .status.blue { color: #326ac5; background: #e1ebff; }
+    .status.orange { color: #a26430; background: #ffefd9; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .metric { padding: 16px; border-radius: 18px; }
+    .metric strong { display: block; font-size: 26px; letter-spacing: -.07em; }
+    .metric span { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; }
+    .admin-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 17px 0; }
+    .admin-tab { padding: 9px 12px; color: #6b8391; border-radius: 11px; background: rgba(255,255,255,.72); font-size: 11px; font-weight: 800; }
+    .admin-tab.active { color: #14747e; background: #e0faf5; }
+    .install-tip { display: flex; align-items: center; gap: 11px; margin-top: 13px; padding: 11px 13px; color: #537187; border-radius: 14px; background: rgba(255,255,255,.63); font-size: 11px; line-height: 1.45; }
+    .install-tip svg { flex: 0 0 auto; color: var(--teal); }
+    @media (max-width: 960px) { .purpose-grid { grid-template-columns: repeat(3, 1fr); } .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) {
+      .app-shell { padding: 14px 14px calc(86px + var(--safe-bottom)); }
+      .topbar { padding-bottom: 12px; }
+      .top-actions .icon-btn:nth-child(2) { display: none; }
+      .layout { display: block; }
+      .sidebar { display: none; }
+      .hero { min-height: 390px; padding: 26px 23px; }
+      .hero h1 { max-width: 340px; font-size: 46px; }
+      .card-grid, .split-grid, .destination-grid { grid-template-columns: 1fr; }
+      .journey-card { grid-template-columns: minmax(0,1fr) 106px; }
+      .progress-dial { width: 92px; height: 92px; }
+      .progress-dial::after { inset: 8px; }
+      .progress-dial strong { font-size: 22px; }
+      .progress-dial span { margin-top: 27px; margin-left: -24px; }
+      .purpose-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-hero h1 { font-size: 38px; }
+      .detail-facts { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .table-row { grid-template-columns: 1fr auto; }
+      .table-row span:nth-child(2), .table-row span:nth-child(3) { display: none; }
+      .mobile-nav { position: fixed; left: 10px; right: 10px; bottom: calc(10px + var(--safe-bottom)); z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr); padding: 7px; border: 1px solid rgba(255,255,255,.96); border-radius: 22px; background: rgba(255,255,255,.84); box-shadow: 0 12px 35px rgba(33,84,119,.18); backdrop-filter: blur(24px); }
+      .mobile-nav .nav-btn { display: grid; justify-items: center; gap: 4px; padding: 8px 3px; margin: 0; border-radius: 15px; font-size: 9px; }
+      .mobile-nav .nav-btn svg { width: 17px; height: 17px; }
+      .mobile-nav .nav-btn.active { box-shadow: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" data-action="nav" data-view="home" aria-label="VisaMOTion home">
+        <span class="brand-mark">V<span style="font-size:.7em">M</span></span>
+        <span><span class="brand-name">VisaMOTion</span><span class="brand-sub">Move with clarity</span></span>
+      </button>
+      <div class="top-actions">
+        <button class="icon-btn" data-action="nav" data-view="consultation" aria-label="Contact a VisaMOTion advisor" title="Talk to an advisor">${CHAT_ICON}</button>
+        <button class="icon-btn" data-action="install" aria-label="Install VisaMOTion" title="Install app">${DOWNLOAD_ICON}</button>
+        <button class="avatar" data-action="nav" data-view="profile" aria-label="Open profile">VM</button>
+      </div>
+    </header>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Main navigation">
+        <div class="nav-label">Your journey</div>
+        <button class="nav-btn active" data-nav="home" data-action="nav" data-view="home">${HOME_ICON}<span>Home</span></button>
+        <button class="nav-btn" data-nav="explore" data-action="nav" data-view="explore">${EXPLORE_ICON}<span>Explore</span></button>
+        <button class="nav-btn" data-nav="applications" data-action="nav" data-view="applications">${TRACK_ICON}<span>My applications</span></button>
+        <button class="nav-btn" data-nav="saved" data-action="nav" data-view="saved">${HEART_ICON}<span>Saved places</span></button>
+        <div class="nav-label" style="margin-top:14px">Support</div>
+        <button class="nav-btn" data-nav="consultation" data-action="nav" data-view="consultation">${CHAT_ICON}<span>Consultation</span></button>
+        <button class="nav-btn" data-nav="profile" data-action="nav" data-view="profile">${USER_ICON}<span>Profile</span></button>
+        <div class="side-note"><strong>Human help, when you need it</strong><span>Our advisors can review your route before you commit.</span><button class="text-btn" data-action="nav" data-view="consultation">Book a call &rarr;</button></div>
+      </aside>
+      <main id="app" class="content" tabindex="-1"></main>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <button class="nav-btn active" data-nav="home" data-action="nav" data-view="home">${HOME_ICON}<span>Home</span></button>
+      <button class="nav-btn" data-nav="explore" data-action="nav" data-view="explore">${EXPLORE_ICON}<span>Explore</span></button>
+      <button class="nav-btn" data-nav="applications" data-action="nav" data-view="applications">${TRACK_ICON}<span>Track</span></button>
+      <button class="nav-btn" data-nav="saved" data-action="nav" data-view="saved">${HEART_ICON}<span>Saved</span></button>
+      <button class="nav-btn" data-nav="profile" data-action="nav" data-view="profile">${USER_ICON}<span>Profile</span></button>
+    </nav>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <input id="file-input" type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.webp">
+  <script type="module">
+    const icon = (path, extra = '') => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}><path d="${path}"/></svg>`
+    const HOME_ICON = icon('M3 10.8 12 3l9 7.8M5.5 9.5V21h13V9.5M9.2 21v-6.3h5.6V21')
+    const EXPLORE_ICON = icon('M20.5 11.8a8.6 8.6 0 1 1-5.1-7.8M15 3h6v6M21 3l-6.5 6.5')
+    const TRACK_ICON = icon('M4 4h16v16H4zM8 8h8M8 12h5M8 16h3')
+    const HEART_ICON = icon('M20.8 8.8c0 5.1-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.8A4.6 4.6 0 0 1 12 6.5a4.6 4.6 0 0 1 8.8 2.3Z')
+    const CHAT_ICON = icon('M20 11.5a7.5 7.5 0 0 1-8 7.5 8.7 8.7 0 0 1-4.1-1L4 19l1.2-3.2A7.3 7.3 0 0 1 4.5 12 7.5 7.5 0 0 1 12 4.5a7.5 7.5 0 0 1 8 7Z')
+    const USER_ICON = icon('M20 21a8 8 0 0 0-16 0M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z')
+    const DOWNLOAD_ICON = icon('M12 3v12M7 10l5 5 5-5M4 20h16')
+    const ARROW_ICON = icon('M5 12h14M13 6l6 6-6 6')
+    const BACK_ICON = icon('M19 12H5M11 18l-6-6 6-6')
+    const SEARCH_ICON = icon('m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z')
+    const CHECK_ICON = icon('m5 12 4.2 4.2L19 6.5')
+    const PLUS_ICON = icon('M12 5v14M5 12h14')
+    const CLOSE_ICON = icon('M6 6l12 12M18 6 6 18')
+    const STAR_ICON = icon('m12 3 2.7 5.5 6 .9-4.4 4.3 1 6.1-5.3-2.9-5.3 2.9 1-6.1-4.4-4.3 6-.9L12 3Z')
+    const DESTINATIONS = [
+      { slug:'singapore', name:'Singapore', code:'SG', region:'Asia Pacific', tagline:'Fast-moving, future-ready', eta:'6–10 weeks', fee:'from $380', gradient:'linear-gradient(145deg,#0b989c,#245fe7)', description:'A clean, connected launchpad for ambitious careers and global families.', highlights:['English-first', 'Strong tech scene', 'Family friendly'], purposes:['Work','Study','Business','Family'], requirements:['Passport bio page','Updated CV','Proof of funds','Education records'] },
+      { slug:'canada', name:'Canada', code:'CA', region:'North America', tagline:'Room to grow into', eta:'8–14 weeks', fee:'from $290', gradient:'linear-gradient(145deg,#4372c8,#9b574b)', description:'A welcoming route for skilled workers, founders, students, and families.', highlights:['Express Entry', 'Post-study work', 'Clear pathways'], purposes:['Work','Study','Family','Visit'], requirements:['Passport bio page','Language result','Work references','Financial statement'] },
+      { slug:'portugal', name:'Portugal', code:'PT', region:'Europe', tagline:'Slow living, smart access', eta:'4–8 weeks', fee:'from $250', gradient:'linear-gradient(145deg,#e36d4f,#7e52c8)', description:'A warm European base with flexible routes for remote work and family life.', highlights:['Digital nomad', 'Schengen access', 'Mild climate'], purposes:['Work','Business','Family','Visit'], requirements:['Passport bio page','Accommodation proof','Income evidence','Insurance cover'] },
+      { slug:'australia', name:'Australia', code:'AU', region:'Oceania', tagline:'Build a bigger future', eta:'10–18 weeks', fee:'from $420', gradient:'linear-gradient(145deg,#168d9c,#db9c53)', description:'A high-opportunity destination for study, skilled work, and new beginnings.', highlights:['Skills pathways', 'Top universities', 'Outdoor life'], purposes:['Work','Study','Visit','Family'], requirements:['Passport bio page','Skills assessment','Police certificate','Health cover'] }
+    ]
+    const PURPOSES = [
+      { id:'work', label:'Work', detail:'Build your next chapter', icon:'↗', color:'mint' },
+      { id:'study', label:'Study', detail:'Learn anywhere', icon:'✦', color:'sky' },
+      { id:'visit', label:'Visit', detail:'Make the trip easy', icon:'◌', color:'peach' },
+      { id:'business', label:'Business', detail:'Move ideas forward', icon:'◇', color:'lilac' },
+      { id:'family', label:'Family', detail:'Bring your people', icon:'♡', color:'yellow' },
+      { id:'eVisa', label:'eVisa', detail:'A faster digital route', icon:'⚡', color:'blue' }
+    ]
+    const DEFAULT_APP = { id:'demo', reference:'VM-2048', destination:'singapore', purpose:'Work', status:'In review', progress:48, nextStep:'Upload your employment letter', created:'18 Sep 2026', docs:[{id:'passport',label:'Passport bio page',required:true,done:true},{id:'cv',label:'Current CV',required:true,done:true},{id:'employment',label:'Employment letter',required:true,done:false},{id:'funds',label:'Proof of funds',required:true,done:false},{id:'photo',label:'Digital photo',required:false,done:false}] }
+    const state = { view:'home', selected:null, purpose:null, query:'', filter:'All', saved:JSON.parse(localStorage.getItem('vm_saved') || '[]'), applications:JSON.parse(localStorage.getItem('vm_apps') || 'null') || [DEFAULT_APP], profile:JSON.parse(localStorage.getItem('vm_profile') || '{"name":"VisaMOTion member","email":"","origin":"Singapore"}'), docs:JSON.parse(localStorage.getItem('vm_docs') || '{}'), adminTab:'overview', loading:false, error:null, toastTimer:null, supabase:null, user:null, deferredInstall:null }
+    const app = document.getElementById('app')
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))
+    const getDestination = slug => DESTINATIONS.find(item => item.slug === slug) || DESTINATIONS[0]
+    const saveLocal = () => { localStorage.setItem('vm_saved', JSON.stringify(state.saved)); localStorage.setItem('vm_apps', JSON.stringify(state.applications)); localStorage.setItem('vm_profile', JSON.stringify(state.profile)); localStorage.setItem('vm_docs', JSON.stringify(state.docs)) }
+    const showToast = message => { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(() => toast.classList.remove('show'), 3200) }
+    const iconButton = (action, label, svg, extra='') => `<button class="icon-btn ${extra}" data-action="${action}" aria-label="${esc(label)}">${svg}</button>`
+    const primary = (label, action, data='') => `<button class="primary-btn" data-action="${action}" ${data}>${label}${ARROW_ICON}</button>`
+    const backButton = (label, view) => `<button class="quiet-btn" data-action="nav" data-view="${view}">${BACK_ICON}<span>${label}</span></button>`
+    const emptyState = (title, copy, action, label) => `<div class="empty glass"><div class="empty-orb">${HEART_ICON}</div><h3>${title}</h3><p>${copy}</p>${action ? `<button class="quiet-btn" data-action="${action}">${label}</button>` : ''}</div>`
+    const destinationCard = destination => `<article class="destination-card" style="--destination-bg:${destination.gradient}">
+      <div class="destination-top"><span class="country-code">${destination.code}</span><button class="save-btn ${state.saved.includes(destination.slug) ? 'saved' : ''}" data-action="save" data-slug="${destination.slug}" aria-label="${state.saved.includes(destination.slug) ? 'Remove from saved' : 'Save destination'}">${HEART_ICON}</button></div>
+      <h3>${destination.name}</h3><p>${destination.tagline}</p><div class="card-meta"><span>${destination.eta}</span><span>${destination.fee}</span></div>
+      <button class="destination-hit" data-action="detail" data-slug="${destination.slug}" aria-label="Open ${destination.name}"></button>
+    </article>`
+    const purposeCard = purpose => `<button class="purpose-card" data-action="purpose" data-purpose="${purpose.label}"><span class="purpose-icon ${purpose.color}">${purpose.icon}</span><strong>${purpose.label}</strong><span>${purpose.detail}</span></button>`
+    const purposeRail = () => `<div class="purpose-grid">${PURPOSES.map(purposeCard).join('')}</div>`
+    const homeView = () => {
+      const active = state.applications[0] || DEFAULT_APP
+      const destination = getDestination(active.destination)
+      return `<section class="screen">
+        <div class="hero"><div class="eyebrow" style="color:#b7fff0">VisaMOTion / 01</div><h1>Your next move,<br><span style="color:#c7fff4">made clear.</span></h1><p class="lede">Discover the right destination, prepare with confidence, and keep every step in one calm place.</p><div class="hero-actions">${primary('Explore destinations','nav','data-view="explore"')}<button class="secondary-btn" data-action="nav" data-view="consultation">Talk to an advisor ${CHAT_ICON}</button></div><div class="stat-row"><div class="stat"><strong>24/7</strong><span>journey visibility</span></div><div class="stat"><strong>4.9/5</strong><span>member support</span></div><div class="stat"><strong>30+</strong><span>route options</span></div></div></div>
+        <div class="section-head"><div><div class="eyebrow">Choose a direction</div><h2>What brings you here?</h2></div><button class="text-btn" data-action="nav" data-view="explore">See all &rarr;</button></div>
+        ${purposeRail()}
+        <div class="section-head"><div><div class="eyebrow">Keep moving</div><h2>Your active journey</h2></div><button class="text-btn" data-action="nav" data-view="applications">View tracker &rarr;</button></div>
+        <div class="journey-card glass"><div><span class="status blue">${esc(active.status)}</span><h3>${destination.name} / ${esc(active.purpose)}</h3><p>${esc(active.nextStep)}. You are closer than you think.</p><div class="form-actions"><button class="quiet-btn" data-action="continue" data-id="${active.id}">Continue ${ARROW_ICON}</button></div></div><div class="progress-dial" style="--progress:${active.progress}%"><strong>${active.progress}%</strong><span>ready</span></div></div>
+        <div class="section-head"><div><div class="eyebrow">Curated for you</div><h2>Move to a place that fits</h2></div><button class="text-btn" data-action="nav" data-view="explore">Browse &rarr;</button></div>
+        <div class="destination-grid">${DESTINATIONS.slice(0,3).map(destinationCard).join('')}</div>
+        <div class="install-tip">${DOWNLOAD_ICON}<span><strong>Make VisaMOTion feel like home.</strong> Install it from your browser menu or use Safari's Share &rarr; Add to Home Screen on iPhone.</span></div>
+      </section>`
+    }
+    const exploreView = () => {
+      const filtered = DESTINATIONS.filter(item => `${item.name} ${item.region} ${item.tagline}`.toLowerCase().includes(state.query.toLowerCase()) && (state.filter === 'All' || item.purposes.includes(state.filter)))
+      return `<section class="screen"><div class="section-head" style="margin-top:5px"><div><div class="eyebrow">Explore the world</div><h1>Find your fit.</h1><p class="lede">Start broad, then let the details get personal.</p></div></div><div class="search-wrap" style="margin-top:23px">${SEARCH_ICON}<input class="search" data-input="query" value="${esc(state.query)}" placeholder="Search by country, region, or route" aria-label="Search destinations"></div><div class="pill-row" style="margin-top:12px"><button class="pill ${state.filter === 'All' ? 'active' : ''}" data-action="filter" data-filter="All">All routes</button>${PURPOSES.map(p => `<button class="pill ${state.filter === p.label ? 'active' : ''}" data-action="filter" data-filter="${p.label}">${p.label}</button>`).join('')}</div><div class="section-head"><div><h2>${filtered.length} destinations</h2><p class="muted" style="font-size:12px;margin-top:5px">Route intelligence, without the overwhelm.</p></div></div>${filtered.length ? `<div class="destination-grid">${filtered.map(destinationCard).join('')}</div>` : emptyState('No destinations yet','Try a different search or clear your route filter.','clear-filters','Clear filters')}</section>`
+    }
+    const savedView = () => {
+      const list = DESTINATIONS.filter(item => state.saved.includes(item.slug))
+      return `<section class="screen"><div class="section-head" style="margin-top:5px"><div><div class="eyebrow">Your shortlist</div><h1>Saved places.</h1><p class="lede">Keep the destinations that make you pause.</p></div></div>${list.length ? `<div class="destination-grid" style="margin-top:24px">${list.map(destinationCard).join('')}</div>` : emptyState('Your shortlist is quiet','Save a destination while you explore and it will stay here on this device.','nav-explore','Explore destinations')}</section>`
+    }
+    const applicationsView = () => `<section class="screen"><div class="section-head" style="margin-top:5px"><div><div class="eyebrow">Your progress</div><h1>Applications.</h1><p class="lede">A calmer way to keep every requirement in view.</p></div>${primary('Start new','nav','data-view="explore"')}</div><div class="card-grid" style="margin-top:24px"><div class="mini-card glass"><div class="mini-icon">${TRACK_ICON}</div><h3>${state.applications.length}</h3><p>Active route${state.applications.length === 1 ? '' : 's'} in your workspace.</p></div><div class="mini-card glass"><div class="mini-icon">${CHECK_ICON}</div><h3>${state.applications.reduce((sum,item) => sum + (item.docs || []).filter(doc => doc.done).length,0)}</h3><p>Documents already checked off.</p></div><div class="mini-card glass"><div class="mini-icon">${CHAT_ICON}</div><h3>1:1</h3><p>Advisor support when a question is bigger than a checklist.</p></div></div><div class="section-head"><div><div class="eyebrow">Live tracker</div><h2>All applications</h2></div></div><div class="stack-list">${state.applications.map(application => { const destination = getDestination(application.destination); return `<article class="journey-card glass" style="margin-bottom:12px"><div><span class="status ${application.status === 'In review' ? 'blue' : ''}">${esc(application.status)}</span><h3>${destination.name} / ${esc(application.purpose)}</h3><p>Reference ${esc(application.reference)} &middot; Started ${esc(application.created || 'Today')}</p><div class="form-actions"><button class="quiet-btn" data-action="continue" data-id="${application.id}">Open application ${ARROW_ICON}</button></div></div><div class="progress-dial" style="--progress:${application.progress}%"><strong>${application.progress}%</strong><span>ready</span></div></article>` }).join('')}</div></section>`
+    const detailView = () => {
+      const destination = getDestination(state.selected)
+      return `<section class="screen"><div class="detail-hero" style="--detail-gradient:${destination.gradient}"><div class="detail-nav">${backButton('Back to explore','explore')}${iconButton('save',state.saved.includes(destination.slug) ? 'Remove from saved' : 'Save destination',HEART_ICON,state.saved.includes(destination.slug) ? 'saved' : '')}</div><span class="detail-code">${destination.code} &middot; ${destination.region}</span><h1>${destination.name}</h1><p>${destination.tagline}</p><div class="detail-facts"><div><strong>${destination.eta}</strong><span>typical review</span></div><div><strong>${destination.fee}</strong><span>starting support</span></div><div><strong>${destination.purposes.length}</strong><span>route options</span></div></div></div><div class="split-grid" style="margin-top:14px"><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Why it works</div><h2>Good moves, made visible.</h2><p>${destination.description}</p></div></div><ul class="highlight-list">${destination.highlights.map(item => `<li><span class="check">${CHECK_ICON}</span>${item}</li>`).join('')}</ul></article><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Your route</div><h3>Pick a purpose</h3><p>We will tailor the checklist next.</p></div></div><div class="route-list">${destination.purposes.map(purpose => `<button class="route-row" data-action="purpose" data-purpose="${purpose}" style="text-align:left"><span class="purpose-icon mint" style="margin:0;width:30px;height:30px">${purpose === 'Work' ? '↗' : purpose === 'Study' ? '✦' : purpose === 'Family' ? '♡' : '◇'}</span><span><strong>${purpose}</strong><span>See requirements</span></span>${ARROW_ICON}</button>`).join('')}</div></article></div></section>`
+    }
+    const purposeView = () => {
+      const destination = getDestination(state.selected)
+      return `<section class="screen"><div style="margin-top:5px">${backButton('Back to destination', 'detail')}</div><div class="section-head"><div><div class="eyebrow">Step 1 of 3</div><h1>What are you<br>moving for?</h1><p class="lede">Choose the route that sounds most like your next chapter in ${destination.name}.</p></div></div><div class="purpose-grid" style="margin-top:25px">${PURPOSES.map(purposeCard).join('')}</div><div class="note" style="margin-top:17px">Not sure yet? Choose the closest fit. An advisor can help you refine the route before you submit anything.</div></section>`
+    }
+    const activeApplication = () => state.applications.find(item => item.id === state.selected) || state.applications[0] || DEFAULT_APP
+    const checklistView = () => {
+      const application = activeApplication()
+      const destination = getDestination(application.destination)
+      const customDocs = state.docs[application.id] || []
+      const docs = [...(application.docs || []), ...customDocs]
+      const done = docs.filter(item => item.done).length
+      const progress = Math.round((done / Math.max(1,docs.length)) * 100)
+      return `<section class="screen"><div style="margin-top:5px">${backButton('Back to applications','applications')}</div><div class="section-head"><div><div class="eyebrow">Step 2 of 3 &middot; ${destination.name}</div><h1>Build your<br>document set.</h1><p class="lede">A small, clear checklist for your ${esc(application.purpose)} route. You can pause and come back anytime.</p></div></div><div class="journey-card glass" style="margin-top:23px"><div><span class="status">${done} of ${docs.length} ready</span><h3>${esc(application.reference)} / ${esc(application.purpose)}</h3><p>${progress === 100 ? 'Everything is ready for review.' : 'Complete the essentials first. Optional items can follow.'}</p></div><div class="progress-dial" style="--progress:${progress}%"><strong>${progress}%</strong><span>ready</span></div></div><div class="section-head"><div><div class="eyebrow">Required first</div><h2>Checklist</h2></div><button class="text-btn" data-action="upload">Add a file &rarr;</button></div><div class="checklist">${docs.map(doc => `<div class="doc-row ${doc.done ? 'done' : ''}"><button class="doc-check" data-action="toggle-doc" data-id="${doc.id}" aria-label="Mark ${esc(doc.label)} ${doc.done ? 'not ready' : 'ready'}">${doc.done ? CHECK_ICON : ''}</button><div class="doc-copy"><strong>${esc(doc.label)}</strong><span>${doc.required ? 'Required for review' : 'Helpful if available'}${doc.fileName ? ` &middot; ${esc(doc.fileName)}` : ''}</span></div><button class="doc-action" data-action="upload" data-doc="${doc.id}">${doc.fileName ? 'Replace' : 'Upload'}</button></div>`).join('')}</div><div class="form-actions"><button class="primary-btn" data-action="submit-application">Save progress ${ARROW_ICON}</button><button class="quiet-btn" data-action="nav" data-view="consultation">Need help? ${CHAT_ICON}</button></div></section>`
+    }
+    const consultationView = () => `<section class="screen"><div class="section-head" style="margin-top:5px"><div><div class="eyebrow">A human in your corner</div><h1>Let's make a<br>clearer plan.</h1><p class="lede">Tell us where you want to go. We will help you understand the best next step, without pressure.</p></div></div><div class="split-grid" style="margin-top:25px"><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Request a consultation</div><h2>Start with a note.</h2><p>We usually reply within one business day.</p></div></div><form id="consult-form"><div class="form-grid"><div class="field"><label for="consult-name">Your name</label><input id="consult-name" name="name" required value="${esc(state.profile.name === 'VisaMOTion member' ? '' : state.profile.name)}" placeholder="Alex Morgan"></div><div class="field"><label for="consult-email">Email</label><input id="consult-email" name="email" type="email" required value="${esc(state.profile.email)}" placeholder="alex@example.com"></div><div class="field"><label for="consult-route">Destination</label><select id="consult-route" name="route"><option>Not sure yet</option>${DESTINATIONS.map(d => `<option>${d.name}</option>`).join('')}</select></div><div class="field"><label for="consult-time">Best time</label><select id="consult-time" name="time"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div><div class="field full"><label for="consult-message">What would you like to solve?</label><textarea id="consult-message" name="message" required placeholder="I am looking at work routes and want to understand what documents I need."></textarea></div></div><div class="form-actions"><button class="primary-btn" type="submit">Request my call ${ARROW_ICON}</button></div></form></article><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">What happens next</div><h2>Three calm steps.</h2></div></div><div class="stepper"><div class="step done"><div class="step-dot">1</div><div><strong>Share the context</strong><p>A few lines is enough to begin.</p></div></div><div class="step current"><div class="step-dot">2</div><div><strong>Meet your route</strong><p>We map options around your goal.</p></div></div><div class="step"><div class="step-dot">3</div><div><strong>Move with confidence</strong><p>You decide what happens next.</p></div></div></div></article></div></section>`
+    const profileView = () => `<section class="screen"><div class="section-head" style="margin-top:5px"><div><div class="eyebrow">Your space</div><h1>Profile.</h1><p class="lede">Keep your details close and your choices yours.</p></div></div><div class="split-grid" style="margin-top:25px"><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Personal details</div><h2>About you</h2><p>Saved on this device. Syncs when you sign in.</p></div><span class="avatar">VM</span></div><form id="profile-form"><div class="form-grid"><div class="field full"><label for="profile-name">Full name</label><input id="profile-name" name="name" value="${esc(state.profile.name)}" placeholder="Your name"></div><div class="field"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" value="${esc(state.profile.email)}" placeholder="you@example.com"></div><div class="field"><label for="profile-origin">Current home</label><input id="profile-origin" name="origin" value="${esc(state.profile.origin)}" placeholder="Singapore"></div></div><div class="form-actions"><button class="primary-btn" type="submit">Save profile ${CHECK_ICON}</button></div></form></article><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Private sync</div><h2>${state.user ? 'Signed in' : 'Keep your journey safe'}</h2><p>${state.user ? `Connected as ${esc(state.user.email || state.profile.email)}` : 'Sign in with a magic link to use the secure workspace across devices.'}</p></div></div>${state.user ? `<div class="note">Your saved places and application progress can sync to VisaMOTion when you are signed in.</div><button class="quiet-btn" style="margin-top:14px" data-action="signout">Sign out</button>` : `<form id="auth-form"><div class="field"><label for="auth-email">Email for your magic link</label><input id="auth-email" type="email" required value="${esc(state.profile.email)}" placeholder="you@example.com"></div><div class="form-actions"><button class="quiet-btn" type="submit">Send magic link ${ARROW_ICON}</button></div></form><p class="muted" style="margin-top:11px;font-size:10px;line-height:1.5">No password stored here. We use Supabase Auth when the connection is available.</p>`}<div class="section-head" style="margin-top:28px;margin-bottom:10px"><div><div class="eyebrow">Agency access</div><h3>Admin workspace</h3></div></div><button class="quiet-btn" data-action="nav" data-view="admin">Open admin view ${ARROW_ICON}</button></article></div></section>`
+    const adminView = () => {
+      const pending = state.applications.filter(item => item.status !== 'Approved').length
+      const content = state.adminTab === 'countries' ? `<div class="split-grid"><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Content manager</div><h2>Destination cards</h2><p>Local preview of the country catalogue. Supabase rows can be synced when admin auth is connected.</p></div><button class="icon-btn" data-action="admin-add" aria-label="Add country">${PLUS_ICON}</button></div><div class="table">${DESTINATIONS.map(item => `<div class="table-row"><strong>${item.code} &middot; ${item.name}</strong><span>${item.region}</span><span>${item.purposes.length} routes</span><button class="text-btn" data-action="detail" data-slug="${item.slug}">View &rarr;</button></div>`).join('')}</div></article><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Editorial note</div><h2>Keep it human.</h2><p>Lead with clarity, realistic timeframes, and the next action.</p></div></div><div class="note">This separate workspace does not change the existing VisaMOTion agency admin system. It is a safe product surface for the new consumer PWA.</div><button class="quiet-btn" style="margin-top:14px" data-action="admin-sync">Sync content ${ARROW_ICON}</button></article></div>` : state.adminTab === 'applications' ? `<article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Application queue</div><h2>Recent member activity</h2><p>Review progress and hand off when a human should step in.</p></div></div><div class="table">${state.applications.map(item => { const d = getDestination(item.destination); return `<div class="table-row"><strong>${esc(item.reference)}</strong><span>${d.name} / ${esc(item.purpose)}</span><span>${item.progress}% ready</span><span class="status ${item.status === 'In review' ? 'blue' : ''}">${esc(item.status)}</span></div>` }).join('')}</div></article>` : `<div class="metric-grid"><div class="metric glass"><strong>${state.applications.length}</strong><span>active applications</span></div><div class="metric glass"><strong>${pending}</strong><span>need attention</span></div><div class="metric glass"><strong>${DESTINATIONS.length}</strong><span>live destinations</span></div><div class="metric glass"><strong>${state.user ? 'Live' : 'Local'}</strong><span>data connection</span></div></div><div class="split-grid" style="margin-top:14px"><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Today</div><h2>Make the next thing obvious.</h2><p>Use the admin view to shape country content and keep route progress visible.</p></div></div><div class="stepper"><div class="step done"><div class="step-dot">1</div><div><strong>Catalogue is ready</strong><p>Four destination routes are available to members.</p></div></div><div class="step current"><div class="step-dot">2</div><div><strong>Review the queue</strong><p>${pending ? `${pending} application${pending === 1 ? '' : 's'} need attention.` : 'Nothing needs attention right now.'}</p></div></div><div class="step"><div class="step-dot">3</div><div><strong>Publish with confidence</strong><p>Sync only after the content is human-reviewed.</p></div></div></div></article><article class="panel glass"><div class="panel-head"><div><div class="eyebrow">Connection</div><h2>${state.user ? 'Supabase connected' : 'Local preview mode'}</h2><p>${state.user ? 'Signed-in changes can sync to the live workspace.' : 'The app works offline-first. Sign in from Profile to sync.'}</p></div></div><button class="quiet-btn" data-action="nav" data-view="profile">Manage connection ${ARROW_ICON}</button></article></div>`
+      return `<section class="screen"><div style="margin-top:5px">${backButton('Back to profile','profile')}</div><div class="section-head"><div><div class="eyebrow">Agency workspace</div><h1>Admin.</h1><p class="lede">Manage the destination surface without touching the existing operations product.</p></div><span class="status ${state.user ? '' : 'orange'}">${state.user ? 'Connected' : 'Local preview'}</span></div><div class="admin-tabs"><button class="admin-tab ${state.adminTab === 'overview' ? 'active' : ''}" data-action="admin-tab" data-tab="overview">Overview</button><button class="admin-tab ${state.adminTab === 'countries' ? 'active' : ''}" data-action="admin-tab" data-tab="countries">Countries & content</button><button class="admin-tab ${state.adminTab === 'applications' ? 'active' : ''}" data-action="admin-tab" data-tab="applications">Applications</button></div>${content}</section>`
+    }
+    const render = () => {
+      const views = {home:homeView, explore:exploreView, saved:savedView, applications:applicationsView, detail:detailView, purpose:purposeView, checklist:checklistView, consultation:consultationView, profile:profileView, admin:adminView}
+      app.innerHTML = views[state.view] ? views[state.view]() : homeView()
+      document.querySelectorAll('[data-nav]').forEach(item => item.classList.toggle('active', item.dataset.nav === state.view))
+      app.scrollIntoView({behavior:'smooth', block:'start'})
+      app.focus({preventScroll:true})
+    }
+    const hydrateShell = () => {
+      const navIcons = {home:HOME_ICON, explore:EXPLORE_ICON, applications:TRACK_ICON, saved:HEART_ICON, consultation:CHAT_ICON, profile:USER_ICON}
+      document.querySelectorAll('.nav-btn[data-nav]').forEach(button => { const label = button.querySelector('span')?.textContent || ''; button.innerHTML = `${navIcons[button.dataset.nav] || USER_ICON}<span>${label}</span>` })
+      const actions = document.querySelectorAll('.top-actions .icon-btn')
+      if (actions[0]) actions[0].innerHTML = CHAT_ICON
+      if (actions[1]) actions[1].innerHTML = DOWNLOAD_ICON
+    }
+    const createApplication = (destinationSlug, purpose) => {
+      const existing = state.applications.find(item => item.destination === destinationSlug && item.purpose === purpose)
+      if (existing) return existing
+      const destination = getDestination(destinationSlug)
+      const application = {id:`app-${Date.now()}`, reference:`VM-${Math.floor(1000 + Math.random() * 8999)}`, destination:destinationSlug, purpose, status:'Draft', progress:0, nextStep:`Add your ${destination.requirements[0].toLowerCase()}`, created:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}), docs:destination.requirements.map((label,index) => ({id:`doc-${Date.now()}-${index}`,label,required:index < 3,done:false}))}
+      state.applications.unshift(application); saveLocal(); return application
+    }
+    const updateProgress = application => { const docs = [...(application.docs || []), ...(state.docs[application.id] || [])]; application.progress = Math.round((docs.filter(doc => doc.done).length / Math.max(1, docs.length)) * 100); application.nextStep = docs.find(doc => !doc.done)?.label ? `Upload your ${docs.find(doc => !doc.done).label.toLowerCase()}` : 'Your document set is ready for review'; if (application.progress === 100) application.status = 'In review' }
+    const syncProfile = async () => { if (!state.supabase || !state.user) return; const {error} = await state.supabase.from('visamotion_profiles').upsert({id:state.user.id,email:state.profile.email || state.user.email,full_name:state.profile.name,origin_country:state.profile.origin,updated_at:new Date().toISOString()}); if (error) console.warn('Profile sync unavailable', error.message) }
+    const syncApplication = async application => { if (!state.supabase || !state.user) return null; const payload = {user_id:state.user.id,reference:application.reference,destination_slug:application.destination,purpose:application.purpose,status:application.status,progress:application.progress,next_step:application.nextStep,updated_at:new Date().toISOString()}; if (application.remoteId) payload.id = application.remoteId; const {data,error} = await state.supabase.from('visamotion_applications').upsert(payload,{onConflict:'reference'}).select().single(); if (error) console.warn('Application sync unavailable', error.message); if (data) application.remoteId = data.id; return data || null }
+    const initSupabase = async () => {
+      try {
+        const {createClient} = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm')
+        const SUPABASE_URL = 'https://qmpuiloswytoycaflbmc.supabase.co'
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_hQncDHvyk9-0wnkl-YwumQ_WAQL_HhR'
+        state.supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+        const session = await state.supabase.auth.getSession()
+        state.user = session.data.session?.user || null
+        state.supabase.auth.onAuthStateChange((_event, nextSession) => { state.user = nextSession?.user || null; if (state.view === 'profile' || state.view === 'admin') render() })
+        if (state.user) await syncProfile()
+      } catch (error) { console.info('Supabase is optional in local-first mode', error.message) }
+    }
+    const startRoute = purpose => { const destination = state.selected && getDestination(state.selected).slug === state.selected ? state.selected : 'singapore'; const application = createApplication(destination, purpose); state.selected = application.id; state.purpose = purpose; state.view = 'checklist'; render(); showToast('Your checklist is ready') }
+    const handleAction = async target => {
+      const action = target.dataset.action
+      if (action === 'nav') { state.view = target.dataset.view; if (state.view !== 'detail' && state.view !== 'purpose' && state.view !== 'checklist') state.selected = null; render(); return }
+      if (action === 'detail') { state.selected = target.dataset.slug; state.view = 'detail'; render(); return }
+      if (action === 'save') { const slug = target.dataset.slug || state.selected; if (state.saved.includes(slug)) { state.saved = state.saved.filter(item => item !== slug); showToast('Removed from saved places') } else { state.saved.push(slug); showToast('Saved to your shortlist') } saveLocal(); render(); return }
+      if (action === 'filter') { state.filter = target.dataset.filter; render(); return }
+      if (action === 'clear-filters') { state.filter = 'All'; state.query = ''; render(); return }
+      if (action === 'nav-explore') { state.view = 'explore'; render(); return }
+      if (action === 'purpose') { startRoute(target.dataset.purpose); return }
+      if (action === 'continue') { state.selected = target.dataset.id; state.view = 'checklist'; render(); return }
+      if (action === 'toggle-doc') { const application = activeApplication(); const doc = (application.docs || []).find(item => item.id === target.dataset.id) || (state.docs[application.id] || []).find(item => item.id === target.dataset.id); if (doc) { doc.done = !doc.done; updateProgress(application); saveLocal(); syncApplication(application); render(); } return }
+      if (action === 'upload') { state.uploadDocId = target.dataset.doc || ''; document.getElementById('file-input').click(); return }
+      if (action === 'submit-application') { const application = activeApplication(); updateProgress(application); application.status = application.progress === 100 ? 'In review' : 'Draft'; saveLocal(); syncApplication(application); showToast(application.progress === 100 ? 'Application ready for review' : 'Progress saved on this device'); render(); return }
+      if (action === 'install') { if (state.deferredInstall) { await state.deferredInstall.prompt(); state.deferredInstall = null } else showToast('On iPhone: Share, then Add to Home Screen'); return }
+      if (action === 'signout') { if (state.supabase) await state.supabase.auth.signOut(); state.user = null; render(); showToast('Signed out') ; return }
+      if (action === 'admin-tab') { state.adminTab = target.dataset.tab; render(); return }
+      if (action === 'admin-add') { showToast('Country editor is ready for the next content pass'); return }
+      if (action === 'admin-sync') { if (state.user) { showToast('Content sync is available for the signed-in workspace') } else { state.view = 'profile'; render(); showToast('Sign in first to sync admin content') } }
+    }
+    document.addEventListener('click', event => { const target = event.target.closest('[data-action]'); if (target) handleAction(target) })
+    document.addEventListener('keydown', event => { if (event.key === 'Enter' && event.target.matches('[data-input="query"]')) render() })
+    document.addEventListener('input', event => { if (event.target.matches('[data-input="query"]')) state.query = event.target.value })
+    document.addEventListener('submit', async event => {
+      event.preventDefault()
+      const form = event.target
+      if (form.id === 'profile-form') {
+        const data = new FormData(form)
+        state.profile = {name:data.get('name') || 'VisaMOTion member', email:data.get('email') || '', origin:data.get('origin') || ''}
+        saveLocal(); await syncProfile(); showToast('Profile saved'); render()
+      }
+      if (form.id === 'consult-form') {
+        const data = new FormData(form)
+        const requests = JSON.parse(localStorage.getItem('vm_consultations') || '[]')
+        requests.unshift({name:data.get('name'),email:data.get('email'),route:data.get('route'),time:data.get('time'),message:data.get('message'),created:new Date().toISOString()})
+        localStorage.setItem('vm_consultations', JSON.stringify(requests)); state.profile.name = data.get('name'); state.profile.email = data.get('email'); saveLocal(); showToast('Request received. We will be in touch.'); render()
+      }
+      if (form.id === 'auth-form') {
+        const email = form.querySelector('input').value.trim(); state.profile.email = email; saveLocal()
+        if (!state.supabase) { showToast('Secure sync is unavailable right now; local mode is still active'); return }
+        const {error} = await state.supabase.auth.signInWithOtp({email, options:{emailRedirectTo:location.href.split('#')[0]}})
+        if (error) showToast(error.message); else showToast('Magic link sent. Check your inbox.')
+      }
+    })
+    document.getElementById('file-input').addEventListener('change', async event => {
+      const file = event.target.files?.[0]; if (!file) return
+      const application = activeApplication(); const custom = state.docs[application.id] || []
+      let doc = [...(application.docs || []), ...custom].find(item => item.id === state.uploadDocId)
+      if (!doc) { doc = {id:`upload-${Date.now()}`,label:file.name,required:false,done:true,fileName:file.name,size:file.size}; state.docs[application.id] = [...custom, doc] }
+      else { doc.done = true; doc.fileName = file.name; doc.size = file.size }
+      if (state.supabase && state.user) {
+        const remote = await syncApplication(application)
+        if (remote) {
+          const cleanName = file.name.replace(/[^a-z0-9._-]/gi, '-').toLowerCase()
+          const path = `${state.user.id}/${application.reference}/${Date.now()}-${cleanName}`
+          const upload = await state.supabase.storage.from('visamotion-documents').upload(path,file,{upsert:true,contentType:file.type || 'application/octet-stream'})
+          if (!upload.error) { doc.storagePath = path; await state.supabase.from('visamotion_documents').insert({user_id:state.user.id,application_id:remote.id,label:doc.label,file_name:file.name,storage_path:path,size_bytes:file.size,status:'uploaded'}) }
+          else console.warn('Document storage unavailable', upload.error.message)
+        }
+      }
+      updateProgress(application); saveLocal(); event.target.value = ''; showToast(`${file.name} added to your checklist`); render()
+    })
+    window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); state.deferredInstall = event })
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(error => console.info('Offline mode unavailable in preview', error.message))
+    hydrateShell(); render(); initSupabase()
+  </script>
+</body>
+</html>
